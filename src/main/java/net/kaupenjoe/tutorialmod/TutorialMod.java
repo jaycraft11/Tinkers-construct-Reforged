@@ -1,6 +1,15 @@
 package net.kaupenjoe.tutorialmod;
 
 import com.mojang.logging.LogUtils;
+import net.kaupenjoe.tutorialmod.block.ModBlocks;
+import net.kaupenjoe.tutorialmod.block.entity.ModBlockEntities;
+import net.kaupenjoe.tutorialmod.item.ModItems;
+import net.kaupenjoe.tutorialmod.recipe.ModRecipes;
+import net.kaupenjoe.tutorialmod.screen.FiveByFiveCraftingScreen;
+import net.kaupenjoe.tutorialmod.screen.KaupenFurnaceScreen;
+import net.kaupenjoe.tutorialmod.screen.ModMenuTypes;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -22,6 +31,14 @@ public class TutorialMod {
     public TutorialMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+
+        ModMenuTypes.register(modEventBus);
+        ModRecipes.register(modEventBus);
+
+        ModBlockEntities.register(modEventBus);
+
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -34,7 +51,13 @@ public class TutorialMod {
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.HAMMER);
+            event.accept(ModBlocks.FIVE_BY_FIVE_CRAFTING);
 
+            event.accept(ModBlocks.KAUPEN_FURANCE);
+            event.accept(ModItems.PEAT_BRICKS);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -48,7 +71,8 @@ public class TutorialMod {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-
+            MenuScreens.register(ModMenuTypes.FIVE_BY_FIVE_CRAFTING.get(), FiveByFiveCraftingScreen::new);
+            MenuScreens.register(ModMenuTypes.KAUPEN_FURNACE_MENU.get(), KaupenFurnaceScreen::new);
         }
     }
 }
